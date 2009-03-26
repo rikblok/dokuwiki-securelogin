@@ -67,9 +67,9 @@ class admin_plugin_securelogin extends DokuWiki_Admin_Plugin {
 		if(!$this->slhlp->haveKey()) {
 			return;
 		}
-		ptln('<textarea cols="64" rows="10">');
+		ptln('<center><textarea cols="64" rows="10" readonly>');
 		ptln($this->slhlp->getPublicKey());
-		ptln('</textarea>');
+		ptln('</textarea></center>');
 		$this->_html_public_info();
 		$this->_html_test();
 	}
@@ -96,7 +96,7 @@ class admin_plugin_securelogin extends DokuWiki_Admin_Plugin {
 		$form->addHidden('page', 'securelogin');
 		$form->addElement(form_makeTextField('fn[public][modulus]', $this->slhlp->getModulus(), $this->getLang('key_modulus'), 'key__modulus', 'block'));
 		$form->addElement(form_makeTextField('fn[public][exponent]', $this->slhlp->getExponent(), $this->getLang('key_exponent'), 'key__exponent', 'block'));
-		$form->addElement(form_makeButton('submit', '', $this->getLang('generate')));
+		$form->addElement(form_makeButton('submit', '', $this->getLang('set')));
 		$form->endFieldset();
 		html_form('edit__publicKey', $form);
 	}
@@ -111,12 +111,10 @@ class admin_plugin_securelogin extends DokuWiki_Admin_Plugin {
 		$form->addHidden('id', $ID);
 		$form->addHidden('do', 'admin');
 		$form->addHidden('page', 'securelogin');
-		$form->addElement(form_makeTextField('fn[test][message]', '', $this->getLang('test_message'), 'test__message', 'block'));
+		$form->addElement(form_makeTextField('fn[test][message]', 'test message', $this->getLang('test_message'), 'test__message', 'block'));
 		$form->addElement(form_makeButton('submit', '', $this->getLang('test'), array('onClick' => "var el=document.getElementById(\"test__message\"); el.value = encrypt(el.value); return true;")));
 		$form->endFieldset();
-		html_form('edit__publicKey', $form);
-		
-	
+		html_form('test__publicKey', $form);	
 	}
 }
 ?>

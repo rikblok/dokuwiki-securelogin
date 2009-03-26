@@ -48,7 +48,7 @@ class helper_plugin_securelogin extends DokuWiki_Plugin {
 	}
 	
 	function getKeyLengths() {
-		return array('512' => '512', '1024' => '1024');
+		return array('512' => '512', '1024' => '1024', '2048' => '2048');
 	}
 	
 	function generateKey($length) {
@@ -56,13 +56,20 @@ class helper_plugin_securelogin extends DokuWiki_Plugin {
 			msg("Error key length $length not supported", -1);
 			return;
 		}
-		$newkey = openssl_pkey_new(array('private_key_bits',$length));
+//		this not work :(
+//		$newkey = @openssl_pkey_new(array('private_key_bits' => $length));
+//
+		$newkey = @openssl_pkey_new();
 		if(!$newkey) {
 			msg('Error generating new key', -1);
 			return; 
 		}
 		if(!openssl_pkey_export_to_file($newkey, $this->_keyFile))
-			msg('Error export new key', -1);		
+			msg('Error export new key', -1);
+		else {
+			@unlink($this->_keyIFile);
+			$this->_keyInfo = null;
+		}
 	}
 	
 	function getPublicKey() {
@@ -88,6 +95,7 @@ class helper_plugin_securelogin extends DokuWiki_Plugin {
 			fprintf($fpinfo, "%s=\"%s\"\n", $key, $val);
 		}
 		fclose($fpinfo);
+		$this->_keyInfo = parse_ini_file($this->_keyIFile);
 	}
 	
 	function decrypt($text) {
