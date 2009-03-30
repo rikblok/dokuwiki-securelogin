@@ -67,6 +67,7 @@ class helper_plugin_securelogin extends DokuWiki_Plugin {
 		if(!openssl_pkey_export_to_file($newkey, $this->_keyFile))
 			msg('Error export new key', -1);
 		else {
+			$this->_key = openssl_pkey_get_private(file_get_contents($this->_keyFile));
 			@unlink($this->_keyIFile);
 			$this->_keyInfo = null;
 		}
