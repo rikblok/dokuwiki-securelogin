@@ -9,5 +9,5 @@ $lang['key_exponent'] = 'Экспонента';
 $lang['test_key'] = 'Проверить';
 $lang['test_message'] = 'Сообщение для проверки';
 $lang['test'] = 'Проверить';
-$lang['use_securelogin'] = 'Безопасный вход';
+$lang['use_securelogin'] = 'Использовать securelogin';
 ?>
