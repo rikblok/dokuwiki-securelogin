@@ -68,8 +68,7 @@ class helper_plugin_securelogin extends DokuWiki_Plugin {
 			msg('Error export new key', -1);
 		else {
 			$this->_key = openssl_pkey_get_private(file_get_contents($this->_keyFile));
-			@unlink($this->_keyIFile);
-			$this->_keyInfo = null;
+			$this->savePublicInfo($this->getPublicKeyInfo($this->getPublicKey()));
 		}
 	}
 	
@@ -121,6 +120,67 @@ class helper_plugin_securelogin extends DokuWiki_Plugin {
           }
 		</script>';
 		return $res;
+	}
+
+	function my_unpack($format, &$bin, $length) {
+		$res = unpack($format, $bin);
+		$bin = substr($bin, $length);
+		return $res;
+	}
+	
+	function readBER(&$bin) {
+		if(!strlen($bin)) return FALSE;
+		
+		
+		$data = $this->my_unpack("C1type/c1length", $bin, 2);
+		
+		if($data[length] < 0) {
+			$count = $data[length] & 0x7F;
+			$data[length] = 0;
+			while($count) {
+				 $data[length] <<= 8;
+				 $tmp = $this->my_unpack("C1length", $bin, 1);
+				 $data[length] += $tmp[length];
+				 $count--;
+			}
+		}
+		
+		switch($data[type]) {
+			case 0x30:	
+				$data[value] = array();
+				do {
+					$tmp = $this->readBER($bin);
+					if($tmp)
+						$data[value][] = $tmp; 
+				} while($tmp);
+				break;
+			case 0x03:
+				$tmp = $this->my_unpack("C1", $bin, 1);
+				$data[value] = $this->readBER($bin);
+				break;
+			default: 
+				$count = $data[length];
+				while($count) {
+					$tmp = $this->my_unpack("C1data", $bin, 1);
+					$data[value] .= sprintf("%02X", $tmp[data]);
+					$count--;
+				}
+		}
+		
+		return $data;
+	}
+	
+	function getPublicKeyInfo($pubkey) {
+		$pubkey = split("(-\n|\n-)", $pubkey);
+		$binary = base64_decode($pubkey[1]);
+		
+		$data = $this->readBER($binary);
+		
+		$pubkeyinfo = array(
+			"modulus" => $data[value][0][value][2][value][value][0][value],
+			"exponent" => $data[value][0][value][2][value][value][1][value]);
+		
+		return $pubkeyinfo;	
 	}
 }
 ?>
