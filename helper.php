@@ -14,6 +14,8 @@ class helper_plugin_securelogin extends DokuWiki_Plugin {
 	var $_keyIFile;
 	var $_key = null;
 	var $_keyInfo = null;
+	var $_workCorrect = false;
+	
 	/**
 	 * constructor
 	 */
@@ -22,10 +24,6 @@ class helper_plugin_securelogin extends DokuWiki_Plugin {
 
 		$this->_keyIFile = $conf['cachedir'].'/securelogin.ini';
 		$this->_keyFile = $conf['cachedir'].'/securelogin.key';
-		if(file_exists($this->_keyFile))
-			$this->_key = openssl_pkey_get_private(file_get_contents($this->_keyFile));
-		if(file_exists($this->_keyIFile))
-			$this->_keyInfo = parse_ini_file($this->_keyIFile);
 	}
 	
 
@@ -44,6 +42,15 @@ class helper_plugin_securelogin extends DokuWiki_Plugin {
 	}
 	
 	function haveKey() {
+		if(!$this->_key && file_exists($this->_keyFile)) {
+			$this->_key = openssl_pkey_get_private(file_get_contents($this->_keyFile));
+			if($this->_key) {
+				if(file_exists($this->_keyIFile))
+					$this->_keyInfo = parse_ini_file($this->_keyIFile);
+				else
+					$this->savePublicInfo($this->getPublicKeyInfo($this->getPublicKey()));
+			}
+		}
 		return null != $this->_key;
 	}
 	
@@ -82,11 +89,11 @@ class helper_plugin_securelogin extends DokuWiki_Plugin {
 	}
 	
 	function getModulus() {
-		return $this->_keyInfo['modulus'];
+		return ($this->haveKey())?$this->_keyInfo['modulus']:null;
 	}
 	
 	function getExponent() {
-		return $this->_keyInfo['exponent'];
+		return ($this->haveKey())?$this->_keyInfo['exponent']:null;
 	}
 	
 	function savePublicInfo($info) {
@@ -99,7 +106,8 @@ class helper_plugin_securelogin extends DokuWiki_Plugin {
 	}
 	
 	function decrypt($text) {
-		openssl_private_decrypt(base64_decode($text), $decoded, $this->_key);
+		if($this->haveKey())
+			openssl_private_decrypt(base64_decode($text), $decoded, $this->_key);
 		return $decoded;
 	}
 	
@@ -181,6 +189,12 @@ class helper_plugin_securelogin extends DokuWiki_Plugin {
 			"exponent" => $data[value][0][value][2][value][value][1][value]);
 		
 		return $pubkeyinfo;	
+	}
+	
+	function workCorrect($yes = false) {
+		if($yes)
+			$this->_workCorrect = true;
+		return $this->_workCorrect;
 	}
 }
 ?>

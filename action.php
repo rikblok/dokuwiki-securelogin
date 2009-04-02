@@ -35,6 +35,7 @@ class action_plugin_securelogin extends DokuWiki_Action_Plugin {
 	}
 
 	function _auth(&$event, $param) {
+		$this->slhlp->workCorrect(true);
 		$this->_decrypt();
 		if($_REQUEST['do'] == "login") {
 			auth_login($_REQUEST['u'], $_REQUEST['p'], $_REQUEST['r'], $_REQUEST['http_credentials']);
@@ -59,6 +60,8 @@ class action_plugin_securelogin extends DokuWiki_Action_Plugin {
 	}
 	
 	function _profile_update_form(&$event, $param) {
+		if(!$this->slhlp->workCorrect()) return;
+		global $lang;
 		$event->data->addHidden('securelogin', 'test');
 		$submit = $event->data->findElementByType('button');
 		if($submit) {
@@ -88,6 +91,7 @@ class action_plugin_securelogin extends DokuWiki_Action_Plugin {
 	}
 	
 	function _login_form(&$event, $param) {
+		if(!$this->slhlp->workCorrect()) return;
 		global $lang;
 		/*
 		 * add hidden field to store encrypted data

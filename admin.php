@@ -41,6 +41,9 @@ class admin_plugin_securelogin extends DokuWiki_Admin_Plugin {
 	 * handle user request
 	 */
 	function handle() {
+		if(!$this->slhlp->workCorrect())
+			msg("Your version of dokuwiki not generate AUTH_LOGIN_CHECK event, plugin not work!");
+			
 		$fn = $_REQUEST['fn'];
 		
 		if (is_array($fn)) {
@@ -62,6 +65,8 @@ class admin_plugin_securelogin extends DokuWiki_Admin_Plugin {
 	 * output appropriate html
 	 */
 	function html() {
+		if(!$this->slhlp->workCorrect())
+			print $this->locale_xhtml('needpatch');
 		$this->_html_generateKey();
 		
 		if(!$this->slhlp->haveKey()) {
