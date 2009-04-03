@@ -9,5 +9,6 @@ $lang['key_exponent'] = 'Public key exponent';
 $lang['test_key'] = 'Test key';
 $lang['test_message'] = 'Test message';
 $lang['test'] = 'Test';
-$lang['use_securelogin'] = 'Use securelogin';
+$lang['use_securelogin'] = 'Secure login';
+$lang['use_secureupdate'] = 'Use safe transfer of the password';
 ?>

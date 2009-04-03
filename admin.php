@@ -23,7 +23,7 @@ class admin_plugin_securelogin extends DokuWiki_Admin_Plugin {
 		return array(
         'author' => 'Mikhail I. Izmestev',
         'email'  => 'izmmishao5@gmail.com',
-        'date'   => '2009-03-26',
+        'date'   => '2009-04-03',
         'name'   => 'securelogin dokuwiki plugin',
         'desc'   => 'Security login via http',
         'url'    => '',
@@ -41,7 +41,9 @@ class admin_plugin_securelogin extends DokuWiki_Admin_Plugin {
 	 * handle user request
 	 */
 	function handle() {
-		if(!$this->slhlp->workCorrect())
+		if(!$this->slhlp->canWork())
+			msg("You need openssl php module for this plugin work!", -1);
+		elseif(!$this->slhlp->workCorrect())
 			msg("Your version of dokuwiki not generate AUTH_LOGIN_CHECK event, plugin not work!");
 			
 		$fn = $_REQUEST['fn'];
@@ -65,7 +67,11 @@ class admin_plugin_securelogin extends DokuWiki_Admin_Plugin {
 	 * output appropriate html
 	 */
 	function html() {
-		if(!$this->slhlp->workCorrect())
+		if(!$this->slhlp->canWork()) {
+			print $this->locale_xhtml('needopenssl');
+			return;
+		}
+		elseif(!$this->slhlp->workCorrect())
 			print $this->locale_xhtml('needpatch');
 		$this->_html_generateKey();
 		
@@ -91,7 +97,21 @@ class admin_plugin_securelogin extends DokuWiki_Admin_Plugin {
 	function _html_test() {
 		global $ID;
 
-		ptln($this->slhlp->encrypt_script());
+		ptln('<script language="JavaScript" type="text/javascript" src="lib/plugins/securelogin/jsbn.js"></script>
+		   <script language="JavaScript" type="text/javascript" src="lib/plugins/securelogin/prng4.js"></script>
+		   <script language="JavaScript" type="text/javascript" src="lib/plugins/securelogin/rng.js"></script>
+		   <script language="JavaScript" type="text/javascript" src="lib/plugins/securelogin/rsa.js"></script>
+		   <script language="JavaScript" type="text/javascript" src="lib/plugins/securelogin/base64.js"></script>
+		   <script>
+		   function encrypt(text) {
+				  var rsa = new RSAKey();
+				  rsa.setPublic("'.$this->slhlp->getModulus().'", "'.$this->slhlp->getExponent().'");
+				  var res = rsa.encrypt(text);
+				  if(res) {
+				    return hex2b64(res);
+				  }
+				}
+			</script>');
 		
 		$form = new Doku_Form('test__publicKey');
 		$form->startFieldset($this->getLang('test_key'));

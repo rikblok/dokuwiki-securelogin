@@ -18,7 +18,7 @@ class action_plugin_securelogin extends DokuWiki_Action_Plugin {
 		return array(
 	 'author' => 'Mikhail I. Izmestev',
 	 'email'  => 'izmmishao5@gmail.com',
-	 'date'   => '2009-03-26',
+	 'date'   => '2009-04-03',
 	 'name'   => 'securelogin events handler',
 	 'desc'   => '',
 	 'url'    => '',
@@ -29,11 +29,73 @@ class action_plugin_securelogin extends DokuWiki_Action_Plugin {
 	 * Register its handlers with the DokuWiki's event controller
 	 */
 	function register(&$controller) {
+		if(!$this->slhlp->canWork() || !$this->slhlp->haveKey(true)) return;
 		$controller->register_hook('HTML_LOGINFORM_OUTPUT', 'BEFORE',  $this, '_login_form');
 		$controller->register_hook('HTML_UPDATEPROFILEFORM_OUTPUT', 'BEFORE',  $this, '_profile_update_form');
 		$controller->register_hook('AUTH_LOGIN_CHECK', 'BEFORE',  $this, '_auth');
+		$controller->register_hook('TPL_METAHEADER_OUTPUT', 'BEFORE',  $this, '_addHeaders');
 	}
 
+	function _addHeaders (&$event, $param) {
+		global $ACT;
+		if(!in_array($ACT, array('login', 'profile'))) return;
+		
+		$event->data["script"][] = array (
+		  "type" => "text/javascript",
+		  "src" => "lib/plugins/securelogin/jsbn.js",
+		  "_data" => "",
+		);
+
+		$event->data["script"][] = array (
+		  "type" => "text/javascript",
+		  "src" => "lib/plugins/securelogin/prng4.js",
+		  "_data" => "",
+		);
+		
+		$event->data["script"][] = array (
+		  "type" => "text/javascript",
+		  "src" => "lib/plugins/securelogin/rng.js",
+		  "_data" => "",
+		);
+		
+		$event->data["script"][] = array (
+		  "type" => "text/javascript",
+		  "src" => "lib/plugins/securelogin/rsa.js",
+		  "_data" => "",
+		);
+		
+		$event->data["script"][] = array (
+		  "type" => "text/javascript",
+		  "src" => "lib/plugins/securelogin/base64.js",
+		  "_data" => "",
+		);
+		
+		$event->data["script"][] = array (
+		  "type" => "text/javascript",
+		  "src" => "lib/plugins/securelogin/securelogin.js",
+		  "_data" => "",
+		);
+		
+		$event->data["script"][] = array (
+		  "type" => "text/javascript",
+		  "charset" => "utf-8",
+		  "_data" => 'function encrypt(text) {
+	var rsa = new RSAKey();
+	rsa.setPublic("'.$this->slhlp->getModulus().'", "'.$this->slhlp->getExponent().'");
+	var res = rsa.encrypt(text);
+	if(res) {
+		return hex2b64(res);
+	}
+}
+function attachHandlers() {
+	var elform = $("'.(($ACT=='login')?'dw__login':'dw__register').'");
+	if(elform)
+		addEvent(elform, "submit", secure_'.$ACT.');
+}
+addEvent(window, "load", attachHandlers);',
+		);
+	}
+	
 	function _auth(&$event, $param) {
 		$this->slhlp->workCorrect(true);
 		$this->_decrypt();
@@ -65,27 +127,7 @@ class action_plugin_securelogin extends DokuWiki_Action_Plugin {
 		$event->data->addHidden('securelogin', 'test');
 		$submit = $event->data->findElementByType('button');
 		if($submit) {
-			ptln($this->slhlp->encrypt_script());
-			ptln('
-<script>
-	function secure_login() {
-		var form = document.getElementById("dw__register");
-		if(!form.use_securelogin.checked) return true;
-		var newpass = form.newpass;
-		var passchk = form.passchk;
-		var oldpass = form.oldpass;
-		var sectok = form.sectok;
-		
-		form.securelogin.value = encrypt("newpass:"+newpass.value+";passchk:"+passchk.value+";oldpass:"+oldpass.value+"@"+sectok.value);
-		oldpass.value = "******";
-		newpass.value = "******";
-		passchk.value = "******";
-		return true;
-	}
-</script>
-			');
-			$event->data->replaceElement($submit, form_makeButton('submit', '', $lang['btn_save'], array('onClick' => 'return secure_login();')));
-			$event->data->insertElement($submit, form_makeCheckboxField('use_securelogin', 'checked', $this->getLang('use_securelogin'), '', 'simple', array('checked' => 'checked')));
+			$event->data->insertElement($submit, form_makeCheckboxField('use_securelogin', 'checked', $this->getLang('use_secureupdate'), '', 'simple', array('checked' => 'checked')));
 		}
 		return;
 	}
@@ -98,32 +140,11 @@ class action_plugin_securelogin extends DokuWiki_Action_Plugin {
 		 */
 		$event->data->addHidden('securelogin', 'test');
 		$submit = $event->data->findElementByType('button');
-		if($submit) {
-/*
- * this is a hack, i don't know how to place here script 
- */
-			ptln($this->slhlp->encrypt_script());
-			ptln('
-<script>
-	function secure_login() {
-		var form = document.getElementById("dw__login");
-		if(!form.use_securelogin.checked) return true;
-		var user = form.u;
-		var pass = form.p;
-		var sectok = form.sectok;
-		
-		form.securelogin.value = encrypt("p:"+pass.value+"@"+sectok.value);
-		pass.value = "******";
-		return true;
-	}
-</script>
-			');
-			
+		if($submit) {	
 			/*
 			 * replace login button on new button associated with onClick event
 			 * add checkbox make possible select security login function
 			 */
-			$event->data->replaceElement($submit, form_makeButton('submit', '', $lang['btn_login'], array('onClick' => 'return secure_login();')));
 			$event->data->insertElement($submit, form_makeCheckboxField('use_securelogin', 'checked', $this->getLang('use_securelogin'), '', 'simple', array('checked' => 'checked')));
 		}
 	}

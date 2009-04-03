@@ -15,6 +15,7 @@ class helper_plugin_securelogin extends DokuWiki_Plugin {
 	var $_key = null;
 	var $_keyInfo = null;
 	var $_workCorrect = false;
+	var $_canWork = false;
 	
 	/**
 	 * constructor
@@ -24,8 +25,20 @@ class helper_plugin_securelogin extends DokuWiki_Plugin {
 
 		$this->_keyIFile = $conf['cachedir'].'/securelogin.ini';
 		$this->_keyFile = $conf['cachedir'].'/securelogin.key';
+
+		if( true 
+			&& function_exists("openssl_pkey_export_to_file")
+			&& function_exists("openssl_pkey_get_details")
+			&& function_exists("openssl_pkey_get_private")
+			&& function_exists("openssl_pkey_new")
+			&& function_exists("openssl_private_decrypt")
+			)
+			$this->_canWork = true;
 	}
 	
+	function canWork() {
+		return $this->_canWork;
+	}
 
 	/**
 	 * return some info
@@ -34,14 +47,20 @@ class helper_plugin_securelogin extends DokuWiki_Plugin {
 		return array(
             'author' => 'Mikhail I. Izmestev',
             'email'  => 'izmmishao5@gmail.com',
-            'date'   => '2009-03-26',
+            'date'   => '2009-04-03',
             'name'   => 'securelogin helper',
             'desc'   => '',
             'url'    => '',
 		);
 	}
 	
-	function haveKey() {
+	function haveKey($onlyPublic = false) {
+		if($onlyPublic && file_exists($this->_keyIFile)) {
+			if(!$this->_keyInfo)
+				$this->_keyInfo = parse_ini_file($this->_keyIFile);
+			return true;
+		}
+		
 		if(!$this->_key && file_exists($this->_keyFile)) {
 			$this->_key = openssl_pkey_get_private(file_get_contents($this->_keyFile));
 			if($this->_key) {
@@ -89,11 +108,11 @@ class helper_plugin_securelogin extends DokuWiki_Plugin {
 	}
 	
 	function getModulus() {
-		return ($this->haveKey())?$this->_keyInfo['modulus']:null;
+		return ($this->haveKey(true))?$this->_keyInfo['modulus']:null;
 	}
 	
 	function getExponent() {
-		return ($this->haveKey())?$this->_keyInfo['exponent']:null;
+		return ($this->haveKey(true))?$this->_keyInfo['exponent']:null;
 	}
 	
 	function savePublicInfo($info) {
@@ -111,25 +130,10 @@ class helper_plugin_securelogin extends DokuWiki_Plugin {
 		return $decoded;
 	}
 	
-	function encrypt_script() {
-		$res = '<script language="JavaScript" type="text/javascript" src="lib/plugins/securelogin/jsbn.js"></script>
-		   <script language="JavaScript" type="text/javascript" src="lib/plugins/securelogin/prng4.js"></script>
-		   <script language="JavaScript" type="text/javascript" src="lib/plugins/securelogin/rng.js"></script>
-		   <script language="JavaScript" type="text/javascript" src="lib/plugins/securelogin/rsa.js"></script>
-		   <script language="JavaScript" type="text/javascript" src="lib/plugins/securelogin/base64.js"></script>
-		<script>
-		  function encrypt(text) {
-			  var rsa = new RSAKey();
-			  rsa.setPublic("'.$this->getModulus().'", "'.$this->getExponent().'");
-			  var res = rsa.encrypt(text);
-			  if(res) {
-			    return hex2b64(res);
-			  }
-          }
-		</script>';
-		return $res;
+	function _writeScript () {
+		
 	}
-
+	
 	function my_unpack($format, &$bin, $length) {
 		$res = unpack($format, $bin);
 		$bin = substr($bin, $length);

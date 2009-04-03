@@ -1,0 +1,2 @@
+===== Plugin not work =====
+Openssl php module required.
