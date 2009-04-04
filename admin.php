@@ -25,7 +25,7 @@ class admin_plugin_securelogin extends DokuWiki_Admin_Plugin {
         'email'  => 'izmmishao5@gmail.com',
         'date'   => '2009-04-03',
         'name'   => 'securelogin dokuwiki plugin',
-        'desc'   => 'Security login via http',
+        'desc'   => 'Secure login via http',
         'url'    => '',
 		);
 	}
@@ -58,7 +58,6 @@ class admin_plugin_securelogin extends DokuWiki_Admin_Plugin {
 		
 		switch($cmd) {
 			case "newkey":	$this->slhlp->generateKey($param); break;
-			case "public":	$this->slhlp->savePublicInfo($param); break;
 			case "test":	msg($this->slhlp->decrypt($param['message'])); break;
 		}
 	}
@@ -75,9 +74,8 @@ class admin_plugin_securelogin extends DokuWiki_Admin_Plugin {
 			print $this->locale_xhtml('needpatch');
 		$this->_html_generateKey();
 		
-		if(!$this->slhlp->haveKey()) {
-			return;
-		}
+		if(!$this->slhlp->haveKey()) return;
+
 		$this->_html_test();
 	}
 	

@@ -29,7 +29,7 @@ class action_plugin_securelogin extends DokuWiki_Action_Plugin {
 	 * Register its handlers with the DokuWiki's event controller
 	 */
 	function register(&$controller) {
-		if(!$this->slhlp->canWork() || !$this->slhlp->haveKey(true)) return;
+		if(!$this->slhlp || !$this->slhlp->canWork() || !$this->slhlp->haveKey(true)) return;
 		$controller->register_hook('HTML_LOGINFORM_OUTPUT', 'BEFORE',  $this, '_login_form');
 		$controller->register_hook('HTML_UPDATEPROFILEFORM_OUTPUT', 'BEFORE',  $this, '_profile_update_form');
 		$controller->register_hook('AUTH_LOGIN_CHECK', 'BEFORE',  $this, '_auth');
@@ -98,14 +98,6 @@ addEvent(window, "load", attachHandlers);',
 	
 	function _auth(&$event, $param) {
 		$this->slhlp->workCorrect(true);
-		$this->_decrypt();
-		if($_REQUEST['do'] == "login") {
-			auth_login($_REQUEST['u'], $_REQUEST['p'], $_REQUEST['r'], $_REQUEST['http_credentials']);
-			$event->preventDefault();
-		}
-	}
-
-	function _decrypt() {
 		if(isset($_REQUEST['use_securelogin']) && $_REQUEST['use_securelogin'] && isset($_REQUEST['securelogin'])) {
 			list($request,) = split('@', $this->slhlp->decrypt($_REQUEST['securelogin']));
 			if($request) {
@@ -118,18 +110,20 @@ addEvent(window, "load", attachHandlers);',
 			unset($_REQUEST['securelogin']);
 			unset($_REQUEST['use_securelogin']);
 		}
-		return;
+		if($_REQUEST['do'] == "login") {
+			auth_login($_REQUEST['u'], $_REQUEST['p'], $_REQUEST['r'], $_REQUEST['http_credentials']);
+			$event->preventDefault();
+		}
 	}
 	
 	function _profile_update_form(&$event, $param) {
 		if(!$this->slhlp->workCorrect()) return;
 		global $lang;
-		$event->data->addHidden('securelogin', 'test');
+		$event->data->addHidden('securelogin', '');
 		$submit = $event->data->findElementByType('button');
 		if($submit) {
 			$event->data->insertElement($submit, form_makeCheckboxField('use_securelogin', 'checked', $this->getLang('use_secureupdate'), '', 'simple', array('checked' => 'checked')));
 		}
-		return;
 	}
 	
 	function _login_form(&$event, $param) {
@@ -138,7 +132,7 @@ addEvent(window, "load", attachHandlers);',
 		/*
 		 * add hidden field to store encrypted data
 		 */
-		$event->data->addHidden('securelogin', 'test');
+		$event->data->addHidden('securelogin', '');
 		$submit = $event->data->findElementByType('button');
 		if($submit) {	
 			/*
@@ -148,6 +142,5 @@ addEvent(window, "load", attachHandlers);',
 			$event->data->insertElement($submit, form_makeCheckboxField('use_securelogin', 'checked', $this->getLang('use_securelogin'), '', 'simple', array('checked' => 'checked')));
 		}
 	}
-
 }
 ?>

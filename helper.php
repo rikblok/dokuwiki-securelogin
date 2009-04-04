@@ -55,10 +55,13 @@ class helper_plugin_securelogin extends DokuWiki_Plugin {
 	}
 	
 	function haveKey($onlyPublic = false) {
-		if($onlyPublic && file_exists($this->_keyIFile)) {
-			if(!$this->_keyInfo)
+		if($onlyPublic) {
+			if($this->_keyInfo)	return true;
+
+			if(file_exists($this->_keyIFile)) {
 				$this->_keyInfo = parse_ini_file($this->_keyIFile);
-			return true;
+				return true;
+			}
 		}
 		
 		if(!$this->_key && file_exists($this->_keyFile)) {
@@ -128,10 +131,6 @@ class helper_plugin_securelogin extends DokuWiki_Plugin {
 		if($this->haveKey())
 			openssl_private_decrypt(base64_decode($text), $decoded, $this->_key);
 		return $decoded;
-	}
-	
-	function _writeScript () {
-		
 	}
 	
 	function my_unpack($format, &$bin, $length) {
