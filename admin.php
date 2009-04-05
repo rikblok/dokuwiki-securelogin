@@ -50,7 +50,7 @@ class admin_plugin_securelogin extends DokuWiki_Admin_Plugin {
 	function handle() {
 		if(!$this->slhlp->canWork())
 			msg("You need openssl php module for this plugin work!", -1);
-		elseif(!$this->slhlp->workCorrect())
+		elseif($this->slhlp->haveKey() && !$this->slhlp->workCorrect())
 			msg("Your version of dokuwiki not generate AUTH_LOGIN_CHECK event, plugin not work!");
 			
 		$fn = $_REQUEST['fn'];
@@ -77,7 +77,7 @@ class admin_plugin_securelogin extends DokuWiki_Admin_Plugin {
 			print $this->locale_xhtml('needopenssl');
 			return;
 		}
-		elseif(!$this->slhlp->workCorrect())
+		elseif($this->slhlp->haveKey() && !$this->slhlp->workCorrect())
 			print $this->locale_xhtml('needpatch');
 		ptln('<div id="secure__login">');
 		$this->_html_generateKey();

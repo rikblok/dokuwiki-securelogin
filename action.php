@@ -30,10 +30,10 @@ class action_plugin_securelogin extends DokuWiki_Action_Plugin {
 	 * Register its handlers with the DokuWiki's event controller
 	 */
 	function register(&$controller) {
+		$controller->register_hook('AUTH_LOGIN_CHECK', 'BEFORE',  $this, '_auth');
 		if(!$this->slhlp || !$this->slhlp->canWork() || !$this->slhlp->haveKey(true)) return;
 		$controller->register_hook('HTML_LOGINFORM_OUTPUT', 'BEFORE',  $this, '_login_form');
 		$controller->register_hook('HTML_UPDATEPROFILEFORM_OUTPUT', 'BEFORE',  $this, '_profile_update_form');
-		$controller->register_hook('AUTH_LOGIN_CHECK', 'BEFORE',  $this, '_auth');
 		$controller->register_hook('TPL_METAHEADER_OUTPUT', 'BEFORE',  $this, '_addHeaders');
 	}
 
@@ -106,6 +106,8 @@ addEvent(window, "load", attachHandlers);',
 	
 	function _auth(&$event, $param) {
 		$this->slhlp->workCorrect(true);
+		if(!$this->slhlp || !$this->slhlp->canWork() || !$this->slhlp->haveKey(true)) return;
+		
 		if(isset($_REQUEST['use_securelogin']) && $_REQUEST['use_securelogin'] && isset($_REQUEST['securelogin'])) {
 			list($request,) = split('@', $this->slhlp->decrypt($_REQUEST['securelogin']));
 			if($request) {
