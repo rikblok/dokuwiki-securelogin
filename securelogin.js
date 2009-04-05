@@ -25,3 +25,9 @@ function secure_login() {
 	return true;
 }
 
+function secure_admin() {
+	var el=$("test__message"); 
+	if(el) 
+		el.value = encrypt(el.value); 
+	return true;					
+}

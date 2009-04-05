@@ -1,0 +1,6 @@
+/* securelogin specific styles */
+#secure__login div.half {
+  width: 46%;
+  float: left;
+}
+/* IE won't understand but doesn't require it */

@@ -8,7 +8,8 @@ class action_plugin_securelogin extends DokuWiki_Action_Plugin {
 	var $slhlp;
 
 	function action_plugin_securelogin () {
-		$this->slhlp =& plugin_load('helper', 'securelogin');
+		$this->slhlp =& plugin_load('helper', $this->getPluginName());
+		define('DOKU_SECURELOGIN', DOKU_REL."lib/plugins/".$this->getPluginName());
 	}
 	
 	/**
@@ -38,43 +39,50 @@ class action_plugin_securelogin extends DokuWiki_Action_Plugin {
 
 	function _addHeaders (&$event, $param) {
 		global $ACT;
-		if(!in_array($ACT, array('login', 'profile'))) return;
+		if(!in_array($ACT, array('login', 'profile')) && $ACT != 'admin' && $_REQUEST['page'] != $this->getPluginName())
+			return;
 		
 		$event->data["script"][] = array (
 		  "type" => "text/javascript",
-		  "src" => "lib/plugins/securelogin/jsbn.js",
+		  "src" => DOKU_SECURELOGIN."/jsbn.js",
 		  "_data" => "",
 		);
 
 		$event->data["script"][] = array (
 		  "type" => "text/javascript",
-		  "src" => "lib/plugins/securelogin/prng4.js",
+		  "src" => DOKU_SECURELOGIN."/prng4.js",
 		  "_data" => "",
 		);
 		
 		$event->data["script"][] = array (
 		  "type" => "text/javascript",
-		  "src" => "lib/plugins/securelogin/rng.js",
+		  "src" => DOKU_SECURELOGIN."/rng.js",
 		  "_data" => "",
 		);
 		
 		$event->data["script"][] = array (
 		  "type" => "text/javascript",
-		  "src" => "lib/plugins/securelogin/rsa.js",
+		  "src" => DOKU_SECURELOGIN."/rsa.js",
 		  "_data" => "",
 		);
 		
 		$event->data["script"][] = array (
 		  "type" => "text/javascript",
-		  "src" => "lib/plugins/securelogin/base64.js",
+		  "src" => DOKU_SECURELOGIN."/base64.js",
 		  "_data" => "",
 		);
 		
 		$event->data["script"][] = array (
 		  "type" => "text/javascript",
-		  "src" => "lib/plugins/securelogin/securelogin.js",
+		  "src" => DOKU_SECURELOGIN."/securelogin.js",
 		  "_data" => "",
 		);
+		
+		switch($ACT) {
+			case 'admin': $form = "test__publicKey"; break;
+			case 'login': $form = "dw__login"; break;
+			case 'profile': $form = "dw__register"; break;
+		}
 		
 		$event->data["script"][] = array (
 		  "type" => "text/javascript",
@@ -88,7 +96,7 @@ class action_plugin_securelogin extends DokuWiki_Action_Plugin {
 	}
 }
 function attachHandlers() {
-	var elform = $("'.(($ACT=='login')?'dw__login':'dw__register').'");
+	var elform = $("'.$form.'");
 	if(elform)
 		addEvent(elform, "submit", secure_'.$ACT.');
 }

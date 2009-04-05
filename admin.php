@@ -12,8 +12,8 @@ class admin_plugin_securelogin extends DokuWiki_Admin_Plugin {
 	var $slhlp = null;
 	
 	function admin_plugin_securelogin () {
-		$this->slhlp =& plugin_load('helper', 'securelogin');
-		if(!$this->slhlp) msg('Loading the securelogin helper failed. Make sure that the securelogin plugin is installed.', -1);
+		$this->slhlp =& plugin_load('helper', $this->getPluginName());
+		if(!$this->slhlp) msg('Loading the '.$this->getPluginName().' helper failed. Make sure that the '.$this->getPluginName().' plugin is installed.', -1);
 	}
 	
 	/**
@@ -37,6 +37,13 @@ class admin_plugin_securelogin extends DokuWiki_Admin_Plugin {
 		return 999;
 	}
 
+	function getMenuText($lang) {
+		switch($lang) {
+			case 'ru': return "Настройки безопасного входа";
+			default: return "Secure login configuration";
+		}
+	}
+	
 	/**
 	 * handle user request
 	 */
@@ -72,54 +79,40 @@ class admin_plugin_securelogin extends DokuWiki_Admin_Plugin {
 		}
 		elseif(!$this->slhlp->workCorrect())
 			print $this->locale_xhtml('needpatch');
+		ptln('<div id="secure__login">');
 		$this->_html_generateKey();
 		
 		if(!$this->slhlp->haveKey()) return;
-
+		
 		$this->_html_test();
+
+		print $this->render("===== ".$this->getLang('public_key')." ===== \n".
+				"<code>\n".
+				$this->slhlp->getPublicKey().
+				"</code>",
+				$format='xhtml');
 	}
 	
 	function _html_generateKey() {
 		global $ID;
-		$form = new Doku_Form('generate__key');
+		$form = new Doku_Form('generate__key', wl($ID)."?do=admin&page=".$this->getPluginName());
 		$form->startFieldset($this->getLang('generate_key'));
-		$form->addHidden('id', $ID);
-		$form->addHidden('do', 'admin');
-		$form->addHidden('page', 'securelogin');
-		$form->addElement(form_makeMenuField('fn[newkey]', $this->slhlp->getKeyLengths(), '', $this->getLang('key_length'), 'key__length', 'block', array('class' => 'edit')));
+		$form->addElement(form_makeMenuField('fn[newkey]', $this->slhlp->getKeyLengths(), $this->slhlp->getKeyLength(), $this->getLang('key_length'), 'key__length', 'block', array('class' => 'edit')));
 		$form->addElement(form_makeButton('submit', '', $this->getLang('generate')));
 		$form->endFieldset();
+		ptln('<div class="half">');
 		html_form('generate', $form);
+		ptln('</div>');
 	}
 	
 	function _html_test() {
 		global $ID;
-
-		ptln('<script language="JavaScript" type="text/javascript" src="lib/plugins/securelogin/jsbn.js"></script>
-		   <script language="JavaScript" type="text/javascript" src="lib/plugins/securelogin/prng4.js"></script>
-		   <script language="JavaScript" type="text/javascript" src="lib/plugins/securelogin/rng.js"></script>
-		   <script language="JavaScript" type="text/javascript" src="lib/plugins/securelogin/rsa.js"></script>
-		   <script language="JavaScript" type="text/javascript" src="lib/plugins/securelogin/base64.js"></script>
-		   <script>
-		   function encrypt(text) {
-				  var rsa = new RSAKey();
-				  rsa.setPublic("'.$this->slhlp->getModulus().'", "'.$this->slhlp->getExponent().'");
-				  var res = rsa.encrypt(text);
-				  if(res) {
-				    return hex2b64(res);
-				  }
-				}
-			</script>');
-		
-		$form = new Doku_Form('test__publicKey');
+		$form = new Doku_Form('test__publicKey', wl($ID)."?do=admin&page=".$this->getPluginName());
 		$form->startFieldset($this->getLang('test_key'));
-		$form->addHidden('id', $ID);
-		$form->addHidden('do', 'admin');
-		$form->addHidden('page', 'securelogin');
 		$form->addElement(form_makeTextField('fn[test][message]', 'test message', $this->getLang('test_message'), 'test__message', 'block'));
-		$form->addElement(form_makeButton('submit', '', $this->getLang('test'), array('onClick' => "var el=document.getElementById(\"test__message\"); el.value = encrypt(el.value); return true;")));
+		$form->addElement(form_makeButton('submit', '', $this->getLang('test')));
 		$form->endFieldset();
-		html_form('test__publicKey', $form);	
+		html_form('test__publicKey', $form);
 	}
 }
 ?>
