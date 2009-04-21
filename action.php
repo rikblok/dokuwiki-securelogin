@@ -9,7 +9,7 @@ class action_plugin_securelogin extends DokuWiki_Action_Plugin {
 
 	function action_plugin_securelogin () {
 		$this->slhlp =& plugin_load('helper', $this->getPluginName());
-		define('DOKU_SECURELOGIN', DOKU_REL."lib/plugins/".$this->getPluginName());
+		define('DOKU_SECURELOGIN', DOKU_BASE."lib/plugins/".$this->getPluginName()."/");
 	}
 	
 	/**
@@ -44,37 +44,37 @@ class action_plugin_securelogin extends DokuWiki_Action_Plugin {
 		
 		$event->data["script"][] = array (
 		  "type" => "text/javascript",
-		  "src" => DOKU_SECURELOGIN."/jsbn.js",
+		  "src" => DOKU_SECURELOGIN."jsbn.js",
 		  "_data" => "",
 		);
 
 		$event->data["script"][] = array (
 		  "type" => "text/javascript",
-		  "src" => DOKU_SECURELOGIN."/prng4.js",
+		  "src" => DOKU_SECURELOGIN."prng4.js",
 		  "_data" => "",
 		);
 		
 		$event->data["script"][] = array (
 		  "type" => "text/javascript",
-		  "src" => DOKU_SECURELOGIN."/rng.js",
+		  "src" => DOKU_SECURELOGIN."rng.js",
 		  "_data" => "",
 		);
 		
 		$event->data["script"][] = array (
 		  "type" => "text/javascript",
-		  "src" => DOKU_SECURELOGIN."/rsa.js",
+		  "src" => DOKU_SECURELOGIN."rsa.js",
 		  "_data" => "",
 		);
 		
 		$event->data["script"][] = array (
 		  "type" => "text/javascript",
-		  "src" => DOKU_SECURELOGIN."/base64.js",
+		  "src" => DOKU_SECURELOGIN."base64.js",
 		  "_data" => "",
 		);
 		
 		$event->data["script"][] = array (
 		  "type" => "text/javascript",
-		  "src" => DOKU_SECURELOGIN."/securelogin.js",
+		  "src" => DOKU_SECURELOGIN."securelogin.js",
 		  "_data" => "",
 		);
 		
@@ -95,12 +95,11 @@ class action_plugin_securelogin extends DokuWiki_Action_Plugin {
 		return hex2b64(res);
 	}
 }
-function attachHandlers() {
+addInitEvent(function () {
 	var elform = $("'.$form.'");
-	if(elform)
-		addEvent(elform, "submit", secure_'.$ACT.');
-}
-addEvent(window, "load", attachHandlers);',
+	if(!elform) return;
+	addEvent(elform, "submit", secure_'.$ACT.');
+});',
 		);
 	}
 	
