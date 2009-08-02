@@ -11,4 +11,6 @@ $lang['test_message'] = 'Test message';
 $lang['test'] = 'Test';
 $lang['use_securelogin'] = 'Secure login';
 $lang['use_secureupdate'] = 'Use safe transfer of the password';
+$lang['securelogin_conf'] = 'Secure login configuration';
+$lang['sample_message'] = 'This is a test message';
 ?>
