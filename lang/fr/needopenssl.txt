@@ -1,0 +1,2 @@
+===== Ce greffon ne fonctionne pas =====
+Le module PHP openSSL est nécessaire.

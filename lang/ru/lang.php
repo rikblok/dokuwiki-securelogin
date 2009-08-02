@@ -11,4 +11,6 @@ $lang['test_message'] = 'Сообщение для проверки';
 $lang['test'] = 'Проверить';
 $lang['use_securelogin'] = 'Безопасный вход';
 $lang['use_secureupdate'] = 'Использовать защищённую передачу пароля';
+$lang['securelogin_conf'] = 'Настройки безопасного входа';
+$lang['sample_message'] = 'This is a test message';
 ?>

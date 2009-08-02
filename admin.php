@@ -38,10 +38,7 @@ class admin_plugin_securelogin extends DokuWiki_Admin_Plugin {
 	}
 
 	function getMenuText($lang) {
-		switch($lang) {
-			case 'ru': return "Настройки безопасного входа";
-			default: return "Secure login configuration";
-		}
+		return $this->getLang('securelogin_conf');
 	}
 	
 	/**
@@ -95,7 +92,7 @@ class admin_plugin_securelogin extends DokuWiki_Admin_Plugin {
 	
 	function _html_generateKey() {
 		global $ID;
-		$form = new Doku_Form('generate__key', wl($ID)."?do=admin&page=".$this->getPluginName());
+		$form = new Doku_Form('generate__key', wl($ID,'do=admin,page='.$this->getPluginName()));
 		$form->startFieldset($this->getLang('generate_key'));
 		$form->addElement(form_makeMenuField('fn[newkey]', $this->slhlp->getKeyLengths(), $this->slhlp->getKeyLength(), $this->getLang('key_length'), 'key__length', 'block', array('class' => 'edit')));
 		$form->addElement(form_makeButton('submit', '', $this->getLang('generate')));
@@ -107,9 +104,9 @@ class admin_plugin_securelogin extends DokuWiki_Admin_Plugin {
 	
 	function _html_test() {
 		global $ID;
-		$form = new Doku_Form('test__publicKey', wl($ID)."?do=admin&page=".$this->getPluginName());
+		$form = new Doku_Form('test__publicKey', wl($ID,'do=admin,page='.$this->getPluginName()));
 		$form->startFieldset($this->getLang('test_key'));
-		$form->addElement(form_makeTextField('fn[test][message]', 'test message', $this->getLang('test_message'), 'test__message', 'block'));
+		$form->addElement(form_makeTextField('fn[test][message]', $this->getLang('sample_message'), $this->getLang('test_message'), 'test__message', 'block'));
 		$form->addElement(form_makeButton('submit', '', $this->getLang('test')));
 		$form->endFieldset();
 		html_form('test__publicKey', $form);
