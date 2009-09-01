@@ -1,0 +1,2 @@
+===== Plugin nefunguje! =====
+Je vyžadován php openssl modul.
