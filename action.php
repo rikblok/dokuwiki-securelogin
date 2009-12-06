@@ -39,7 +39,13 @@ class action_plugin_securelogin extends DokuWiki_Action_Plugin {
 
 	function _addHeaders (&$event, $param) {
 		global $ACT;
-		if(!in_array($ACT, array('login', 'profile')) && $ACT != 'admin' && $_REQUEST['page'] != $this->getPluginName())
+		global $plugin_controller;
+		/* is showlogin enabled ? */
+		$swle = ! $plugin_controller->isdisabled( 'showlogin' );
+		//We not need to add javascripts to pages which not are:
+		if(!in_array($ACT, array('login', 'profile')) //login or profile page
+			&& ! ($ACT == 'admin' && $_REQUEST['page'] == $this->getPluginName()) //securelogin admin page
+			&& ! ($swle && ($ACT == 'denied') && (! $_SERVER['REMOTE_USER']))) //showlogin plugin
 			return;
 		
 		$event->data["script"][] = array (
@@ -78,10 +84,11 @@ class action_plugin_securelogin extends DokuWiki_Action_Plugin {
 		  "_data" => "",
 		);
 		
-		switch($ACT) {
+		switch($act=$ACT) {
 			case 'admin': $form = "test__publicKey"; break;
 			case 'login': $form = "dw__login"; break;
 			case 'profile': $form = "dw__register"; break;
+			case 'denied': $form = "dw__login"; $act='login'; break;
 		}
 		
 		$event->data["script"][] = array (
@@ -98,7 +105,7 @@ class action_plugin_securelogin extends DokuWiki_Action_Plugin {
 addInitEvent(function () {
 	var elform = $("'.$form.'");
 	if(!elform) return;
-	addEvent(elform, "submit", secure_'.$ACT.');
+	addEvent(elform, "submit", secure_'.$act.');
 });',
 		);
 	}
@@ -152,4 +159,3 @@ addInitEvent(function () {
 		}
 	}
 }
-?>
