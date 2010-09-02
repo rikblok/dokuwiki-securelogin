@@ -56,8 +56,8 @@ function secure_modify_user() {
 
 if(securelogin_forms) {
 	var ajax = new sack(DOKU_BASE+'lib/exe/ajax.php');
-	ajax_qsearch.sack.AjaxFailedAlert = '';
-	ajax_qsearch.sack.encodeURIString = true;
+	ajax.AjaxFailedAlert = '';
+	ajax.encodeURIString = true;
 	ajax.onCompletion = function(){
 		var data = this.response;
 		if(data === ''){ return; }
