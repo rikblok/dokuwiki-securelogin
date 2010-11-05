@@ -46,7 +46,7 @@ class helper_plugin_securelogin extends DokuWiki_Plugin {
 		return array(
             'author' => 'Mikhail I. Izmestev',
             'email'  => 'izmmishao5@gmail.com',
-            'date'   => '2009-04-03',
+            'date'   => '2010-11-05',
             'name'   => 'securelogin helper',
             'desc'   => '',
             'url'    => '',

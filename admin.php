@@ -23,7 +23,7 @@ class admin_plugin_securelogin extends DokuWiki_Admin_Plugin {
 		return array(
         'author' => 'Mikhail I. Izmestev',
         'email'  => 'izmmishao5@gmail.com',
-        'date'   => '2009-04-03',
+        'date'   => '2010-11-05',
         'name'   => 'securelogin dokuwiki plugin',
         'desc'   => 'Secure login via http',
         'url'    => '',
