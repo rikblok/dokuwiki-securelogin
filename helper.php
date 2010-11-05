@@ -28,7 +28,6 @@ class helper_plugin_securelogin extends DokuWiki_Plugin {
 
 		if( true 
 			&& function_exists("openssl_pkey_export_to_file")
-			&& function_exists("openssl_pkey_get_details")
 			&& function_exists("openssl_pkey_get_private")
 			&& function_exists("openssl_pkey_new")
 			&& function_exists("openssl_private_decrypt")
@@ -70,7 +69,7 @@ class helper_plugin_securelogin extends DokuWiki_Plugin {
 				if(file_exists($this->_keyIFile))
 					$this->_keyInfo = parse_ini_file($this->_keyIFile);
 				else
-					$this->savePublicInfo($this->getPublicKeyInfo($this->getPublicKey()));
+					$this->savePublicInfo($this->getPublicKeyInfo(file_get_contents($this->_keyFile)));
 			}
 		}
 		return null != $this->_key;
@@ -96,17 +95,8 @@ class helper_plugin_securelogin extends DokuWiki_Plugin {
 			msg('Error export new key', -1);
 		else {
 			$this->_key = openssl_pkey_get_private(file_get_contents($this->_keyFile));
-			$this->savePublicInfo($this->getPublicKeyInfo($this->getPublicKey()));
+			$this->savePublicInfo($this->getPublicKeyInfo(file_get_contents($this->_keyFile)));
 		}
-	}
-	
-	function getPublicKey() {
-		if(!$this->haveKey()) {
-			return null;
-		}
-		
-		$key = openssl_pkey_get_details($this->_key);
-		return $key['key'];
 	}
 	
 	function getKeyLength() {
@@ -173,6 +163,9 @@ class helper_plugin_securelogin extends DokuWiki_Plugin {
 					$null = my_unpack("C1", $bin, 1);
 					$data[value] = readBER($bin);
 					break;
+				case 0x04:
+					$data[value] = readBER($bin);
+					break;
 				default: 
 					$count = $data[length];
 					while($count) {
@@ -195,8 +188,8 @@ class helper_plugin_securelogin extends DokuWiki_Plugin {
 		$data = $this->decodeBER($binary);
 		
 		$pubkeyinfo = array(
-			"modulus" => $data[value][0][value][2][value][value][0][value],
-			"exponent" => $data[value][0][value][2][value][value][1][value],
+			"modulus" => $data[value][1][value][2][value][value][1][value],
+			"exponent" => $data[value][1][value][2][value][value][2][value],
 		);
 		
 		return $pubkeyinfo;	

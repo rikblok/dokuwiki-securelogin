@@ -82,11 +82,11 @@ class admin_plugin_securelogin extends DokuWiki_Admin_Plugin {
 		if($this->slhlp->haveKey()) {
 			$this->_html_test();
 	
-			print $this->render("===== ".$this->getLang('public_key')." ===== \n".
-					"<code>\n".
-					$this->slhlp->getPublicKey().
-					"</code>",
-					$format='xhtml');
+//			print $this->render("===== ".$this->getLang('public_key')." ===== \n".
+//					"<code>\n".
+//					$this->slhlp->getPublicKey().
+//					"</code>",
+//					$format='xhtml');
 		}
 		ptln('</div>');
 	}
