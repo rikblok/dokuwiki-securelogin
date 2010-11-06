@@ -18,7 +18,7 @@ class action_plugin_securelogin extends DokuWiki_Action_Plugin {
 		return array(
 	 'author' => 'Mikhail I. Izmestev',
 	 'email'  => 'izmmishao5@gmail.com',
-	 'date'   => '2009-04-03',
+	 'date'   => '2010-11-07',
 	 'name'   => 'securelogin events handler',
 	 'desc'   => '',
 	 'url'    => '',
@@ -33,27 +33,16 @@ class action_plugin_securelogin extends DokuWiki_Action_Plugin {
 		$controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE',  $this, '_ajax_handler');
 	}
 	
-	function _unesc3( $s ) {
-		return str_replace( '%40', '@', $s );
-	}
-	function _unesc2( $s ) {
-		return str_replace( '%3B', ';', $s );
-	}
-	function _unesc1( $s ) {
-		return str_replace( array( '%3A', '%26' ), array( ':', '%' ), $s );
-	}
 	function _auth(&$event, $param) {
 		$this->slhlp->workCorrect(true);
 		if(!$this->slhlp || !$this->slhlp->canWork() || !$this->slhlp->haveKey(true)) return;
 		
 		if(isset($_REQUEST['use_securelogin']) && $_REQUEST['use_securelogin'] && isset($_REQUEST['securelogin'])) {
-			list($request,) = split('@', $this->slhlp->decrypt($_REQUEST['securelogin']));
+			list($request,) = split(';', $this->slhlp->decrypt($_REQUEST['securelogin']));
 			if($request) {
-				$request=$this->_unesc3( $request ); // %40 -> @
-				foreach(split(";", $request) as $var) {
-					$var=$this->_unesc2( $var ); // %3B -> ;
-					list($key, $value) = split(":",$var);
-					$value=$this->_unesc1( $value ); // %3A -> : and  %26 -> %
+				foreach(split("&", $request) as $var) {
+					list($key, $value) = split("=",$var,2);
+					$value = urldecode($value);
 					$_REQUEST[$key] = $value;
 					$_POST[$key] = $value;
 				}
