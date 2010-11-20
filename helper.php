@@ -182,16 +182,40 @@ class helper_plugin_securelogin extends DokuWiki_Plugin {
 	}
 	
 	function getPublicKeyInfo($pubkey) {
+		function findKeyInfo($data, &$pubkeyinfo) {
+			if($data[type] == 48) {
+				if(count($data[value]) != 9) {
+					foreach($data[value] as $subdata) {
+						if(findKeyInfo($subdata, $pubkeyinfo))
+							return true;
+					}
+				}
+				else {
+					$pubkeyinfo = array(
+						"modulus" => $data[value][1][value],
+						"exponent" => $data[value][2][value],
+					);
+					return true;
+				}
+			}
+			elseif($data[type] == 4) {
+				return findKeyInfo($data[value], $pubkeyinfo);
+			}
+			return false;
+		}
+
 		$pubkey = split("(-\n|\n-)", $pubkey);
 		$binary = base64_decode($pubkey[1]);
 		
 		$data = $this->decodeBER($binary);
 		
+		findKeyInfo($data, $pubkeyinfo);
+/*		
 		$pubkeyinfo = array(
 			"modulus" => $data[value][1][value][2][value][value][1][value],
 			"exponent" => $data[value][1][value][2][value][value][2][value],
 		);
-		
+*/		
 		return $pubkeyinfo;	
 	}
 	
