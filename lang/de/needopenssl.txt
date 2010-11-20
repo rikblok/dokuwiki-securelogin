@@ -1,0 +1,2 @@
+===== Plugin funktioniert nicht =====
+Openssl php module benötigt.
