@@ -1,5 +1,5 @@
 function esc( x ) {
-	return x.replace( /%/g, '%26').replace( /;/g, '%3B' ).replace( /:/g, '%3A' ).replace( /@/g, '%40' );
+	return encodeURIComponent(x);
 }
 
 function secure_profile() {
@@ -10,7 +10,7 @@ function secure_profile() {
 	var oldpass = form.oldpass;
 	var sectok = form.sectok;
 	
-	form.securelogin.value = encrypt("newpass:"+esc(newpass.value)+";passchk:"+esc(passchk.value)+";oldpass:"+esc(oldpass.value)+"@"+sectok.value);
+	form.securelogin.value = encrypt("newpass="+esc(newpass.value)+"&passchk="+esc(passchk.value)+"&oldpass="+esc(oldpass.value)+";"+sectok.value);
 	oldpass.value = "******";
 	newpass.value = "******";
 	passchk.value = "******";
@@ -24,7 +24,7 @@ function secure_login() {
 	var pass = form.p;
 	var sectok = form.sectok;
 	
-	form.securelogin.value = encrypt("p:"+esc(pass.value)+"@"+sectok.value);
+	form.securelogin.value = encrypt("p="+esc(pass.value)+";"+sectok.value);
 	pass.value = "******";
 	return true;
 }
@@ -32,7 +32,7 @@ function secure_login() {
 function secure_admin() {
 	var el=$("test__message"); 
 	if(el) 
-		el.value = encrypt(el.value); 
+		el.value = encrypt(esc(el.value)); 
 	return true;					
 }
 
@@ -42,7 +42,7 @@ function secure_add_user() {
 	var pass = form.add_userpass;
 	var sectok = form.sectok;
 	
-	form.securelogin.value = encrypt("userpass:"+esc(pass.value)+"@"+sectok.value);
+	form.securelogin.value = encrypt("userpass="+esc(pass.value)+";"+sectok.value);
 	pass.value = "******";
 	return true;
 }
@@ -53,7 +53,7 @@ function secure_modify_user() {
 	var pass = form.modify_userpass;
 	var sectok = form.sectok;
 	
-	form.securelogin.value = encrypt("userpass:"+esc(pass.value)+"@"+sectok.value);
+	form.securelogin.value = encrypt("userpass="+esc(pass.value)+";"+sectok.value);
 	pass.value = "******";
 	return true;
 }

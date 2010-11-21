@@ -23,7 +23,7 @@ class admin_plugin_securelogin extends DokuWiki_Admin_Plugin {
 		return array(
         'author' => 'Mikhail I. Izmestev',
         'email'  => 'izmmishao5@gmail.com',
-        'date'   => '2010-11-05',
+        'date'   => '2010-11-07',
         'name'   => 'securelogin dokuwiki plugin',
         'desc'   => 'Secure login via http',
         'url'    => '',
@@ -62,7 +62,7 @@ class admin_plugin_securelogin extends DokuWiki_Admin_Plugin {
 		
 		switch($cmd) {
 			case "newkey":	$this->slhlp->generateKey($param); break;
-			case "test":	msg($this->slhlp->decrypt($param['message'])); break;
+			case "test":	msg(urldecode($this->slhlp->decrypt($param['message']))); break;
 		}
 	}
 	
