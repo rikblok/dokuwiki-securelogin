@@ -1,16 +1,16 @@
 <?php
-$lang['generate_key'] = 'Neues Schlüsselpaar generieren';
+$lang['generate_key'] = 'Neues SchlÃ¼sselpaar generieren';
 $lang['generate'] = 'Generieren';
 $lang['set'] = 'Setzen';
-$lang['key_length'] = 'Schlüssellänge';
-$lang['public_key'] = 'Öffentlicher Schlüssel';
-$lang['key_modulus'] = 'Schlüssel Modulus';
-$lang['key_exponent'] = 'Öffentlicher Schlüssel Exponent';
-$lang['test_key'] = 'Schlüssel testen';
+$lang['key_length'] = 'SchlÃ¼ssellÃ¤nge';
+$lang['public_key'] = 'Ã–ffentlicher SchlÃ¼ssel';
+$lang['key_modulus'] = 'SchlÃ¼ssel Modulus';
+$lang['key_exponent'] = 'Ã–ffentlicher SchlÃ¼ssel Exponent';
+$lang['test_key'] = 'SchlÃ¼ssel testen';
 $lang['test_message'] = 'Testnachricht';
 $lang['test'] = 'Testen';
 $lang['use_securelogin'] = 'Sicheres Anmelden';
-$lang['use_secureupdate'] = 'Benutze sichere Übertragung des Kennworts';
+$lang['use_secureupdate'] = 'Kennwort sicher Ã¼bertragen';
 $lang['securelogin_conf'] = 'Secure login Konfiguration';
 $lang['sample_message'] = 'Das ist eine Testnachricht';
 ?>

@@ -1,2 +1,2 @@
 ===== Plugin funktioniert nicht =====
-Sie müssen Dokuwiki updaten oder einen Patch verwenden [[http://dev.splitbrain.org/darcsweb/darcsweb.cgi?r=dokuwiki;a=filediff;h=20090312224454-b7b7f-12b7fa78c0b638c1795f6d5e1b1c1aa2cbab64d4.gz;f=inc/auth.php|Action Event wrappers around HTTP requests and authentication checks]]
+Sie mÃ¼ssen Dokuwiki updaten oder einen Patch verwenden [[http://dev.splitbrain.org/darcsweb/darcsweb.cgi?r=dokuwiki;a=filediff;h=20090312224454-b7b7f-12b7fa78c0b638c1795f6d5e1b1c1aa2cbab64d4.gz;f=inc/auth.php|Action Event wrappers around HTTP requests and authentication checks]]
