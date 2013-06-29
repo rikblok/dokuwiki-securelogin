@@ -13,12 +13,12 @@ function securelogin_get_form(el) {
 	return el;
 }
 
-addInitEvent(function () {
+jQuery(function() {
 	var forms = new Array('dw__login', 'dw__register', 'test__publicKey', 'add_userid', 'modify_userid');
 	
 	var jsNeeded = false;
 	for (var i = 0; i < forms.length; ++i) {
-		var form = securelogin_get_form($(forms[i]));
+		var form = securelogin_get_form(jQuery("#" + forms[i])[0]);
 		if(!form) continue;
 		if(!jsNeeded)
 			jsNeeded = true;

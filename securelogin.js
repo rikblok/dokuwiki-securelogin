@@ -3,7 +3,7 @@ function esc( x ) {
 }
 
 function secure_profile() {
-	var form = $("dw__register");
+	var form = jQuery("#dw__register")[0];
 	if(!form || !form.use_securelogin.checked) return true;
 	var newpass = form.newpass;
 	var passchk = form.passchk;
@@ -18,7 +18,7 @@ function secure_profile() {
 }
 
 function secure_login() {
-	var form = $("dw__login");
+	var form = jQuery("#dw__login")[0];
 	if(!form || !form.use_securelogin.checked) return true;
 	var user = form.u;
 	var pass = form.p;
@@ -30,14 +30,14 @@ function secure_login() {
 }
 
 function secure_admin() {
-	var el=$("test__message"); 
+	var el = jQuery("#test__message")[0];
 	if(el) 
 		el.value = encrypt(esc(el.value)); 
 	return true;					
 }
 
 function secure_add_user() {
-	var form = securelogin_get_form($('add_userid'));
+	var form = securelogin_get_form(jQuery('#add_userid')[0]);
 	if(!form || !form.use_securelogin.checked) return true;
 	var pass = form.add_userpass;
 	var sectok = form.sectok;
@@ -48,7 +48,7 @@ function secure_add_user() {
 }
 
 function secure_modify_user() {
-	var form = securelogin_get_form($('modify_userid'));
+	var form = securelogin_get_form(jQuery('#modify_userid')[0]);
 	if(!form || !form.use_securelogin.checked) return true;
 	var pass = form.modify_userpass;
 	var sectok = form.sectok;
@@ -58,12 +58,7 @@ function secure_modify_user() {
 	return true;
 }
 
-if(securelogin_forms) {
-	var ajax = new sack(DOKU_BASE+'lib/exe/ajax.php');
-	ajax.AjaxFailedAlert = '';
-	ajax.encodeURIString = true;
-	ajax.onCompletion = function(){
-		var data = this.response;
+function ajaxSuccess(data) {
 		if(data === ''){ return; }
 		var jsNode = document.createElement('script');
 		jsNode.setAttribute('type', 'text/javascript');
@@ -76,28 +71,28 @@ if(securelogin_forms) {
 			case 'dw__login':
 			case 'dw__register':
 				var uslNode = document.createElement('label');
-				var button = getElementsByClass('button', form, 'input')[0];
+				var button = jQuery("input.button", form)[0];
 				button.parentNode.insertBefore(uslNode, button);
 				uslNode.setAttribute('class', 'simple');
 				uslNode.setAttribute('for', 'use_securelogin');
 				var label;
 				if('dw__login' == securelogin_forms[i][0]) {
-					addEvent(form, "submit", secure_login);
+					jQuery(form).submit(secure_login);
 					label = securelogin_login_label;
 				}
 				else {
-					addEvent(form, "submit", secure_profile);
+					jQuery(form).submit(secure_profile);
 					label = securelogin_update_label;
 				}
 				uslNode.innerHTML = '<input type="checkbox" id="use_securelogin" name="use_securelogin" value="1" checked="checked"/> <span>'+label+'</span>';
 				break;
 			case 'test__publicKey':
-				addEvent(form, "submit", secure_admin);
+				jQuery(form).submit(secure_admin);
 				break;
 			case 'add_userid':
 			case 'modify_userid':
 				var uslNode = document.createElement('tbody');
-				var button = getElementsByClass('button', form, 'input')[0].parentNode.parentNode.parentNode;
+				var button = jQuery("input.button", form)[0].parentNode.parentNode.parentNode;
 				button.parentNode.insertBefore(uslNode, button);
 				var tr = document.createElement('tr');
 				uslNode.appendChild(tr);
@@ -108,12 +103,18 @@ if(securelogin_forms) {
 				tr.appendChild(td);
 				td.innerHTML = '<input type="checkbox" id="use_securelogin" name="use_securelogin" value="1" checked="checked"/>';
 				if('add_userid' == securelogin_forms[i][0])
-					addEvent(form, "submit", secure_add_user);
+					jQuery(form).submit(secure_add_user);
 				else
-					addEvent(form, "submit", secure_modify_user);
+					jQuery(form).submit(secure_modify_user);
 				break;
 			}
 		}
-	}
-	ajax.runAJAX('call=securelogin_public_key');
+}
+
+if(securelogin_forms) {
+	jQuery.post(
+		DOKU_BASE + 'lib/exe/ajax.php',
+		{ call: 'securelogin_public_key' },
+		ajaxSuccess
+	);
 }
